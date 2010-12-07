@@ -9,12 +9,13 @@ The purpose of this project is *NOT* for:
 
 * fetch popular photos;
 * get user info;
-* convert username to user id (or searching a user)
+* convert username to user id (or searching a user);
 
 The only purpose is:
-* backup yor photostream (you should find out your user_id first)
-* expose this photostream as jsonp api
-* embed code for showing your photostream anywhere
+
+* backup yor photostream (you should find out your user_id first);
+* expose this photostream as jsonp api;
+* embed code for showing your photostream anywhere;
 
 Mislav Marohnić kindly provide a [unofficial Instagram API][mislav_instagram_wiki] wiki, I think it's a better place to know what beneath the great instagram app.
 
