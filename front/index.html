@@ -4,55 +4,61 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
   <script type="text/javascript" src="js/mustache.js"></script>
+  <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
   <title>Instagr.am of xxx</title>
   <textarea id="template" style="display: none;">
-<ul>
+<div class="instagram-frame instag">
   {{#timeline}}
     {{#user}}
-      <dt>{{full_name}}({{username}})</dt>
-      <dd>
-        <img width="48" height="48" src="{{profile_pic_url}}" />
-      </dd>
+      <dl class="user">
+        <dt data-fullname="{{full_name}}" data-username="{{username}}"><span class="fullname">{{full_name}}</span><span class="username">{{username}}</span></dt>
+        <dd>
+          <img width="150" height="150" src="{{profile_pic_url}}" />
+        </dd>
+      </dl>
     {{/user}}
-    {{#pictures}}
-      <li>
-        <a href="http://instagr.am/p/{{code}}/" target="_blank">
-          {{#prefered_version}}
-            <img class="prefered-version" src="{{url}}" />
-          {{/prefered_version}}
-        </a>
-        <ul class="image-versions" style="display: none">
-          {{#image_versions}}
-            <img width="{{width}}" height="{{height}}" src="{{url}}" />
-          {{/image_versions}}
-        </ul>
-        <p class="likers">
-          {{#likers}}
-            <span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>
-          {{/likers}}
-          likes it
-        </p>
-        <ul class="comments">
-        {{#comments}}
-            <li data-type="{{content_type}}" data-createdat="{{created_at}}">{{#user}}<span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}" data-fullname="{{full_name}}">{{username}}</span>{{/user}}: {{text}}</li>
-        {{/comments}}
-        </ul>
-      </li>
-    {{/pictures}}
+    <ul class="pictures">
+      {{#pictures}}
+        <li>
+          <a href="http://instagr.am/p/{{code}}/" target="_blank">
+            {{#prefered_version}}
+              <img class="prefered-version" src="{{url}}"/>
+            {{/prefered_version}}
+          </a>
+          <ul class="image-versions" style="display: none">
+            {{#image_versions}}
+              <img width="{{width}}" height="{{height}}" src="{{url}}" />
+            {{/image_versions}}
+          </ul>
+          <p class="likers">
+            {{#likers}}
+              <span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>
+            {{/likers}}
+            likes it
+          </p>
+          <ul class="comments">
+          {{#comments}}
+              <li data-type="{{content_type}}" data-createdat="{{created_at}}">{{#user}}<span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}" data-fullname="{{full_name}}">{{username}}</span>{{/user}}: {{text}}</li>
+          {{/comments}}
+          </ul>
+        </li>
+      {{/pictures}}
+    </ul>
   {{/timeline}}
-</ul>
+</div>
   </textarea>
   <script type="text/javascript" charset="utf-8">
   var DOMAIN = window.location && window.location.host ? window.location.host : 'instagram.diamondtin.com';
   var template = $('#template').val();
 
   var showTimeline = function(data) {
-    console.log(data)
+    // console.log(data)
     for (var pic_index = 0; pic_index < data.pictures.length; pic_index ++) {
       var item = data.pictures[pic_index];
       for (var index = 0; index < item.image_versions.length; index++) {
         if (item.image_versions[index].type == 5) {
           item.prefered_version = item.image_versions[index];
+          item.prefered_version.degree = 5 - Math.round(Math.random() * 10);
         }
       }
     }
