@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+  <script type="text/javascript" src="js/mustache.js"></script>
+  <title>Instagr.am of xxx</title>
+  <textarea id="template" style="display: none;">
+<ul>
+  {{#photo_stream}}
+    <li>
+      <dl>
+        <dt>
+          <dl>
+            {{#user}}
+              <dt>{{full_name}}({{username}})</dt>
+              <dd>
+                <img width="48" height="48" src="{{profile_pic_url}}" />
+              </dd>
+            {{/user}}
+          </dl>
+        </dt>
+        <dd>
+          {{#prefered_version}}
+            <img class="prefered-version" src="{{url}}" />
+          {{/prefered_version}}
+          <ul class="image-versions" style="display: none">
+            {{#image_versions}}
+              <img width="{{width}}" height="{{height}}" src="{{url}}" />
+            {{/image_versions}}
+          </ul>
+        </dd>
+      </dl>
+      <span class="likers">
+        {{#likers}}
+          <span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>
+        {{/likers}}
+        likes it
+      </span>
+      <ul class="comments">
+      {{#comments}}
+          <li data-type="{{content_type}}" data-createdat="{{created_at}}">{{#user}}<span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>{{/user}}: {{text}}</li>
+      {{/comments}}
+      </ul>
+    </li>
+  {{/photo_stream}}
+</ul>
+  </textarea>
+  <script type="text/javascript" charset="utf-8">
+  var template = $('#template').val();
+
+  var render = function(data, limit) {
+    var photo_stream = [];
+    for (pk in data) {
+      var item = data[pk];
+      for (var index = 0; index < item.image_versions.length; index++) {
+        if (item.image_versions[index].type == 5) {
+          item.prefered_version = item.image_versions[index];
+        }
+      }
+      photo_stream.push(data[pk]);
+    }
+    photo_stream.sort(function(one, another){
+       return another.pk - one.pk;
+    });
+    photo_stream = photo_stream.slice(0, limit);
+    var html = Mustache.to_html(template, {'photo_stream': photo_stream});
+    $('#timeline').html(html);
+  };
+
+  $(function(){
+    $.getJSON('/api/timeline/88156', function(data){
+      var limit = $('#timeline').data('limit');
+      render(data, limit);
+    })
+  });
+  </script>
+</head>
+<body>
+<div id="timeline" data-limit="10">
+</div>
+</body>
+</html>
