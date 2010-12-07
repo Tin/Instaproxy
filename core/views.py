@@ -2,11 +2,13 @@
 from django.http import HttpResponse
 import json
 from models import TimelineVisitor
+from time import time
 
 
 def timeline(request, user_id):
     visitor = TimelineVisitor(user_id)
-    timeline = visitor.get_timeline()
+    count = request.GET.get('count', '100')
+    timeline = visitor.range(count=int(count))
     callback = request.GET.get('callback', None)
     response_text = json.dumps(timeline)
     if callback:

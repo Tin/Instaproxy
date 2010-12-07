@@ -49,6 +49,11 @@ class TimelineVisitorTests(TestCase):
         self.assertFalse(v.cached)
         v.get_timeline()
         self.assertTrue(v.cached)
+    
+    def test_visitor_should_able_to_limit_timeline_size(self):
+        v = TimelineVisitor(311749)
+        r = v.range(limit=5)
+        self.assertEquals(5, len(r['pictures']))
 
     def test_visitor_should_tell_cache_time(self):
         v = TimelineVisitor(311749)

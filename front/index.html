@@ -7,73 +7,57 @@
   <title>Instagr.am of xxx</title>
   <textarea id="template" style="display: none;">
 <ul>
-  {{#photo_stream}}
-    <li>
-      <dl>
-        <dt>
-          <dl>
-            {{#user}}
-              <dt>{{full_name}}({{username}})</dt>
-              <dd>
-                <img width="48" height="48" src="{{profile_pic_url}}" />
-              </dd>
-            {{/user}}
-          </dl>
-        </dt>
-        <dd>
-          {{#prefered_version}}
-            <img class="prefered-version" src="{{url}}" />
-          {{/prefered_version}}
-          <ul class="image-versions" style="display: none">
-            {{#image_versions}}
-              <img width="{{width}}" height="{{height}}" src="{{url}}" />
-            {{/image_versions}}
-          </ul>
-        </dd>
-      </dl>
-      <span class="likers">
-        {{#likers}}
-          <span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>
-        {{/likers}}
-        likes it
-      </span>
-      <ul class="comments">
-      {{#comments}}
-          <li data-type="{{content_type}}" data-createdat="{{created_at}}">{{#user}}<span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>{{/user}}: {{text}}</li>
-      {{/comments}}
-      </ul>
-    </li>
-  {{/photo_stream}}
+  {{#timeline}}
+    {{#user}}
+      <dt>{{full_name}}({{username}})</dt>
+      <dd>
+        <img width="48" height="48" src="{{profile_pic_url}}" />
+      </dd>
+    {{/user}}
+    {{#pictures}}
+      <li>
+        {{#prefered_version}}
+          <img class="prefered-version" src="{{url}}" />
+        {{/prefered_version}}
+        <ul class="image-versions" style="display: none">
+          {{#image_versions}}
+            <img width="{{width}}" height="{{height}}" src="{{url}}" />
+          {{/image_versions}}
+        </ul>
+        <p class="likers">
+          {{#likers}}
+            <span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}">{{full_name}}</span>
+          {{/likers}}
+          likes it
+        </p>
+        <ul class="comments">
+        {{#comments}}
+            <li data-type="{{content_type}}" data-createdat="{{created_at}}">{{#user}}<span data-pk="{{pk}}" data-pic="{{profile_pic_url}}" data-username="{{username}}" data-fullname="{{full_name}}">{{username}}</span>{{/user}}: {{text}}</li>
+        {{/comments}}
+        </ul>
+      </li>
+    {{/pictures}}
+  {{/timeline}}
 </ul>
   </textarea>
   <script type="text/javascript" charset="utf-8">
   var DOMAIN = window.location && window.location.host ? window.location.host : 'instagram.diamondtin.com';
   var template = $('#template').val();
 
-  var render = function(data, limit) {
-    var photo_stream = [];
-    for (pk in data) {
-      var item = data[pk];
+  var showTimeline = function(data) {
+    console.log(data)
+    for (var pic_index = 0; pic_index < data.pictures.length; pic_index ++) {
+      var item = data.pictures[pic_index];
       for (var index = 0; index < item.image_versions.length; index++) {
         if (item.image_versions[index].type == 5) {
           item.prefered_version = item.image_versions[index];
         }
       }
-      photo_stream.push(data[pk]);
     }
-    photo_stream.sort(function(one, another){
-       return another.pk - one.pk;
-    });
-    photo_stream = photo_stream.slice(0, limit);
-    var html = Mustache.to_html(template, {'photo_stream': photo_stream});
+    var html = Mustache.to_html(template, {'timeline': data});
     $('#timeline').html(html);
   };
-  
-  var showTimeline = function(timeline) {
-    var limit = $('#timeline').data('limit');
-    render(timeline, limit);
-  }
-  
+
   function getQueryParams() {
     var pairs = window.location.search.replace(/^\?/, '').split('&');
     var dict = {}
@@ -90,12 +74,13 @@
   $(function(){
     var params = getQueryParams();
     var id = params['id'] ? params.id : 88156;
-    $.getJSON('http://' + DOMAIN + '/api/timeline/' + id + '?callback=?', showTimeline);
+    var count = $('#timeline').data('count');
+    $.getJSON('http://' + DOMAIN + '/api/timeline/' + id + '?count=' + count + '&callback=?', showTimeline);
   });
   </script>
 </head>
 <body>
-<div id="timeline" data-limit="10">
+<div id="timeline" data-count="10">
 </div>
 </body>
 </html>

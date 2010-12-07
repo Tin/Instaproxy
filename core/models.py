@@ -70,11 +70,22 @@ class TimelineVisitor(object):
                 self.load_from_cache()
             if self.expired:
                 self.update()
+                self.dump()
         else:
             self.crawl()
             self.dump()
 
         return self.items
+    
+    def range(self, count=100):
+        timeline = self.get_timeline()
+        sorted_pk = sorted(timeline.keys(), key=int, reverse=True)
+        sorted_pk_in_range = sorted_pk[:count]
+        d = {}
+        d['pictures'] = [self.items[pk] for pk in sorted_pk_in_range]
+        if len(timeline):
+            d['user'] = timeline[sorted_pk_in_range[0]]['user']
+        return d
 
     @property
     def min_id(self):
