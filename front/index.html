@@ -67,12 +67,14 @@
     var html = Mustache.to_html(template, {'photo_stream': photo_stream});
     $('#timeline').html(html);
   };
+  
+  var showTimeline = function(timeline) {
+    var limit = $('#timeline').data('limit');
+    render(timeline, limit);
+  }
 
   $(function(){
-    $.getJSON('/api/timeline/88156', function(data){
-      var limit = $('#timeline').data('limit');
-      render(data, limit);
-    })
+    $.getJSON('http://localhost:8000/api/timeline/88156?callback=?', showTimeline);
   });
   </script>
 </head>
