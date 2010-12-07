@@ -8,22 +8,33 @@ class TimelineVisitorTests(TestCase):
 
     def setUp(self):
         pass
-    
+
     def test_there_should_have_no_max_id_in_the_begin(self):
         v = TimelineVisitor(311749)
         self.assertEquals('http://instagr.am/api/v1/feed/user/311749/?', v.get_user_feed_url())
-    
+
     def test_visitor_should_know_max_id_after_each_visit(self):
         v = TimelineVisitor(311749)
         d = v.visit()
         self.assertTrue(v.min_id > 9999)
-    
+
+    def test_visitor_should_know_min_id_after_each_visit(self):
+        v = TimelineVisitor(311749)
+        d = v.visit()
+        self.assertTrue(v.max_id > 9999)
+
     def test_should_use_min_id_as_max_id_in_next_query(self):
         v = TimelineVisitor(311749)
         v.visit()
         expected_visit_url = 'http://instagr.am/api/v1/feed/user/311749/?max_id=%s&' % v.min_id
         self.assertEquals(expected_visit_url, v.get_user_feed_url())
-    
+
+    def test_should_use_max_id_as_min_id_in_update_query(self):
+        v = TimelineVisitor(311749)
+        v.visit()
+        expected_visit_url = 'http://instagr.am/api/v1/feed/user/311749/?min_id=%s&' % v.max_id
+        self.assertEquals(expected_visit_url, v.get_user_feed_url(update=True))
+
     def test_min_id_should_change_after_each_step(self):
         v = TimelineVisitor(311749)
         v.visit()
@@ -47,7 +58,7 @@ class TimelineVisitorTests(TestCase):
         self.assertEquals(today.day, v.cached_time.day)
         self.assertEquals(today.month, v.cached_time.month)
         self.assertEquals(today.year, v.cached_time.year)
-    
+
     def test_visitor_should_tell_if_cache_is_expired(self):
         v = TimelineVisitor(311749)
         self.assertEquals(False, v.expired)

@@ -13,29 +13,37 @@ class TimelineVisitor(object):
 
     def __init__(self, user_id):
         self.user_id = user_id
-        self.min_id = None
         self.items = {}
-    
-    def get_user_feed_url(self):
+
+    def get_user_feed_url(self, update=False):
         feed_url = 'http://instagr.am/api/v1/feed/user/%s/?' % self.user_id
-        if self.min_id:
+        if not update and self.min_id:
             feed_url += 'max_id=%s&' % self.min_id
+        if update and self.max_id:
+            feed_url += 'min_id=%s&' % self.max_id
         return feed_url
-    
+
     def crawl(self):
         till_end = False
         while not till_end:
             previous_min_id = self.min_id
             self.visit()
             till_end = (self.min_id == previous_min_id)
-    
+
+    def update(self):
+        till_tip = False
+        while not till_tip:
+            previous_max_id = self.max_id
+            self.visit(update=True)
+            till_tip = (self.max_id == previous_max_id)
+
     def pprint(self):
         pprint(self.items)
-    
+
     def dump(self):
         filename = self.get_filename()
         dump(filename, json.dumps(self.items))
-    
+
     def load_from_cache(self):
         filename = self.get_filename()
         with open(filename, 'r') as f:
@@ -44,9 +52,9 @@ class TimelineVisitor(object):
     def get_filename(self):
         return os.path.join(self.basedir, '%s-%s.%s' % (self.user_id, 'timeline', 'json'))
 
-    def visit(self):
-        url = self.get_user_feed_url()
-        # print 'visit %s' % url
+    def visit(self, update=False):
+        url = self.get_user_feed_url(update=update)
+        print 'visit %s' % url
         js = fetch(url)
         d = json.loads(js)
         if d['status'] == 'ok':
@@ -54,22 +62,31 @@ class TimelineVisitor(object):
                 pk = int(item['pk'])
                 if pk not in self.items:
                     self.items[pk] = item
-        self.min_id = self.get_min_id()
         return d
-    
+
     def get_timeline(self):
-        if self.cached and not self.expired:
+        if self.cached:
             if not len(self.items):
                 self.load_from_cache()
+            if self.expired:
+                self.update()
         else:
-            self.visit()
+            self.crawl()
             self.dump()
 
         return self.items
 
-    def get_min_id(self):
+    @property
+    def min_id(self):
         if len(self.items):
             return min(self.items.keys())
+        else:
+            return None
+
+    @property
+    def max_id(self):
+        if len(self.items):
+            return max(self.items.keys())
         else:
             return None
 
