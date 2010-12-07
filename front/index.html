@@ -47,6 +47,7 @@
 </ul>
   </textarea>
   <script type="text/javascript" charset="utf-8">
+  var DOMAIN = window.location && window.location.host ? window.location.host : 'instagram.diamondtin.com';
   var template = $('#template').val();
 
   var render = function(data, limit) {
@@ -72,9 +73,24 @@
     var limit = $('#timeline').data('limit');
     render(timeline, limit);
   }
+  
+  function getQueryParams() {
+    var pairs = window.location.search.replace(/^\?/, '').split('&');
+    var dict = {}
+    for (var index = 0; index < pairs.length; index++) {
+      var pair = pairs[index];
+      var parts = pair.split('=');
+      if (parts.length >= 1) {
+        dict[parts[0]] = parts[1];
+      }
+    }
+    return dict;
+  }
 
   $(function(){
-    $.getJSON('http://localhost:8000/api/timeline/88156?callback=?', showTimeline);
+    var params = getQueryParams();
+    var id = params['id'] ? params.id : 88156;
+    $.getJSON('http://' + DOMAIN + '/api/timeline/' + id + '?callback=?', showTimeline);
   });
   </script>
 </head>
