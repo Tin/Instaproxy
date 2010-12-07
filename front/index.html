@@ -16,9 +16,11 @@
     {{/user}}
     {{#pictures}}
       <li>
-        {{#prefered_version}}
-          <img class="prefered-version" src="{{url}}" />
-        {{/prefered_version}}
+        <a href="http://instagr.am/p/{{code}}/" target="_blank">
+          {{#prefered_version}}
+            <img class="prefered-version" src="{{url}}" />
+          {{/prefered_version}}
+        </a>
         <ul class="image-versions" style="display: none">
           {{#image_versions}}
             <img width="{{width}}" height="{{height}}" src="{{url}}" />
